@@ -117,7 +117,7 @@ export default function UsersPage() {
             filters={filters}
             onFilterChange={handleFilterChange}
             onClearFilters={handleClearFilters}
-            config={dynamicSearchConfig} // Gunakan config yang sudah dinamis
+            config={dynamicSearchConfig}
           />
         )}
 

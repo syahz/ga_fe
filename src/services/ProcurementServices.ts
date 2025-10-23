@@ -1,6 +1,7 @@
 import axiosInstance from '@/lib/axios'
-import { normalizePaginatedResponse } from '@/lib/apiTableHelper'
-import type { ApiError, PaginatedResponse, RawPaginatedResponse } from '@/types/api/api'
+import { buildSearchParams } from '@/lib/http'
+import { normalizePaginatedResponse, normalizePaginatedWithSummary } from '@/lib/apiTableHelper'
+import type { ApiError, PaginatedResponse, RawPaginatedResponse, PaginatedWithSummary } from '@/types/api/api'
 import type {
   Procurement,
   ProcurementsParams,
@@ -8,7 +9,9 @@ import type {
   CreateProcurementRequest,
   UpdateProcurementRequest,
   ProcurementHistoryLog,
-  ProcurementProgress
+  ProcurementProgress,
+  DashboardSummary,
+  GetDashboardProcurementsResponse
 } from '@/types/api/procurementType'
 
 const normalizeError = (error: unknown, defaultMsg: string, defaultCode: string): ApiError => {
@@ -20,11 +23,40 @@ const normalizeError = (error: unknown, defaultMsg: string, defaultCode: string)
 }
 
 /**
- * Mengambil daftar pengadaan untuk dashboard.
+ * ADMIN: Mengambil data dashboard pengadaan: summary + daftar surat (paginated).
+ */
+export const getAdminDashboardProcurements = async (
+  params: ProcurementsParams = {}
+): Promise<PaginatedWithSummary<Procurement, DashboardSummary>> => {
+  try {
+    const searchString = buildSearchParams({
+      page: params.page,
+      limit: params.limit,
+      search: params.search,
+      unitId: params.unitId
+    })
+
+    const response = await axiosInstance.get<{ data: GetDashboardProcurementsResponse }>(
+      `/admin/procurements/dashboardadmin${searchString ? `?${searchString}` : ''}`
+    )
+
+    console.log('Admin Dashboard Response:', response.data)
+    return normalizePaginatedWithSummary<Procurement, DashboardSummary>(
+      response.data as unknown as {
+        data: { letters: Procurement[]; summary: DashboardSummary; pagination: PaginatedResponse<Procurement>['pagination'] }
+      }
+    )
+  } catch (error) {
+    throw normalizeError(error, 'Gagal mengambil data pengadaan untuk dashboard (admin)', 'GET_ADMIN_DASHBOARD_PROCUREMENTS_ERROR')
+  }
+}
+
+/**
+ * USER: Mengambil daftar pengadaan untuk dashboard (sederhana, array saja).
  */
 export const getDashboardProcurements = async (): Promise<Procurement[]> => {
   try {
-    const response = await axiosInstance.get<{ data: Procurement[] }>('/admin/procurements/dashboard')
+    const response = await axiosInstance.get<{ data: Procurement[] }>(`/admin/procurements/dashboard`)
     return response.data.data
   } catch (error) {
     throw normalizeError(error, 'Gagal mengambil data pengadaan untuk dashboard', 'GET_DASHBOARD_PROCUREMENTS_ERROR')
@@ -36,12 +68,8 @@ export const getDashboardProcurements = async (): Promise<Procurement[]> => {
  */
 export const getProcurements = async (params: ProcurementsParams): Promise<PaginatedResponse<Procurement>> => {
   try {
-    const searchParams = new URLSearchParams()
-    if (params.page) searchParams.set('page', params.page.toString())
-    if (params.limit) searchParams.set('limit', params.limit.toString())
-    if (params.search) searchParams.set('search', params.search)
-
-    const response = await axiosInstance.get<RawPaginatedResponse<Procurement>>(`/admin/procurements?${searchParams.toString()}`)
+    const searchString = buildSearchParams({ page: params.page, limit: params.limit, search: params.search })
+    const response = await axiosInstance.get<RawPaginatedResponse<Procurement>>(`/admin/procurements?${searchString}`)
     return normalizePaginatedResponse(response.data)
   } catch (error) {
     throw normalizeError(error, 'Gagal mengambil data pengadaan', 'GET_PROCUREMENTS_ERROR')
@@ -53,12 +81,8 @@ export const getProcurements = async (params: ProcurementsParams): Promise<Pagin
  */
 export const getHistoryProcurements = async (params: ProcurementsParams): Promise<PaginatedResponse<ProcurementHistoryLog>> => {
   try {
-    const searchParams = new URLSearchParams()
-    if (params.page) searchParams.set('page', params.page.toString())
-    if (params.limit) searchParams.set('limit', params.limit.toString())
-    if (params.search) searchParams.set('search', params.search)
-
-    const response = await axiosInstance.get<RawPaginatedResponse<ProcurementHistoryLog>>(`/admin/procurements/history?${searchParams.toString()}`)
+    const searchString = buildSearchParams({ page: params.page, limit: params.limit, search: params.search })
+    const response = await axiosInstance.get<RawPaginatedResponse<ProcurementHistoryLog>>(`/admin/procurements/history?${searchString}`)
     return normalizePaginatedResponse(response.data)
   } catch (error) {
     throw normalizeError(error, 'Gagal mengambil data history pengadaan', 'GET_HISTORY_PROCUREMENTS_ERROR')

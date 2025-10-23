@@ -24,6 +24,12 @@ export interface PaginatedResponse<T> {
   pagination: Pagination
 }
 
+export interface PaginatedWithSummary<T, S> {
+  items: T[]
+  pagination: Pagination
+  summary: S
+}
+
 export interface ApiError {
   message: string
   code?: string

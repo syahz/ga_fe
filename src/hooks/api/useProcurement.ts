@@ -12,7 +12,8 @@ import {
   getHistoryProcurements,
   getProcurementProgress,
   getProcurementLetterFile,
-  getDashboardProcurements
+  getDashboardProcurements,
+  getAdminDashboardProcurements
 } from '@/services/ProcurementServices'
 
 const procurementQueryKeys = {
@@ -45,10 +46,21 @@ const customRetry = (failureCount: number, error: unknown) => {
 /**
  * Hook untuk mengambil daftar pengadaan untuk dashboard.
  */
+// USER: dashboard sederhana (array)
 export function useGetDashboardProcurements() {
   return useQuery({
     queryKey: ['dashboardProcurements'],
     queryFn: () => getDashboardProcurements(),
+    staleTime: 5 * 60 * 1000,
+    retry: customRetry
+  })
+}
+
+// ADMIN: dashboard dengan summary + letters (paginated)
+export function useGetAdminDashboardProcurements(params: ProcurementsParams = {}) {
+  return useQuery({
+    queryKey: ['adminDashboardProcurements', params],
+    queryFn: () => getAdminDashboardProcurements(params),
     staleTime: 5 * 60 * 1000,
     retry: customRetry
   })

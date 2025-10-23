@@ -26,6 +26,7 @@ export interface ProcurementsParams {
   page?: number
   limit?: number
   search?: string
+  unitId?: string
 }
 
 export interface ProcessDecisionRequest {
@@ -92,4 +93,22 @@ interface ProcurementFormData {
 export type CreateProcurementRequest = ProcurementFormData
 export type UpdateProcurementRequest = Omit<ProcurementFormData, 'letterFile'> & {
   letterFile?: File
+}
+
+// Dashboard summary types
+export type DashboardSummary = {
+  total_in_unit: number
+  total_approved: number
+  total_rejected: number
+}
+
+export type GetDashboardProcurementsResponse = {
+  summary: DashboardSummary
+  letters: Procurement[]
+  pagination: {
+    total_data: number
+    page: number
+    limit: number
+    total_page: number
+  }
 }

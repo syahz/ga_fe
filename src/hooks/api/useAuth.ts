@@ -1,3 +1,5 @@
+'use client'
+
 import { login, logout } from '@/services/Auth'
 import type { LoginRequest } from '@/types/api/auth'
 import { useMutation, useQueryClient } from '@tanstack/react-query'

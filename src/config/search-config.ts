@@ -26,7 +26,21 @@ export interface SearchConfig {
   filters?: FilterConfig[]
 }
 
-// Ubah dari objek menjadi fungsi yang menerima options
+export const getDashboardSearchConfig = (unitsOptions: SearchOption[]) => {
+  return {
+    placeholder: 'Cari berdasarkan nomor surat, perihal, atau nominal...',
+    searchButtonText: 'Cari',
+    resetButtonText: 'Reset',
+    filters: [
+      {
+        key: 'unitId',
+        placeholder: 'Semua Unit',
+        options: unitsOptions
+      }
+    ]
+  }
+}
+
 export const getUsersSearchConfig = (rolesOptions: SearchOption[], unitsOptions: SearchOption[]) => {
   return {
     placeholder: 'Cari pengguna...',

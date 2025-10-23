@@ -7,6 +7,14 @@ const nextConfig: NextConfig = {
     config.resolve.alias.encoding = false
 
     return config
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:4000/api/:path*'
+      }
+    ]
   }
 }
 
