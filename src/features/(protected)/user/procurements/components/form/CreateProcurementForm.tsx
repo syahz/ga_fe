@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { useAuth } from '@/context/AuthContext'
+import { useEffect, useMemo } from 'react'
 
 interface CreateProcurementFormProps {
   onSubmit: (values: ProcurementFormValues) => Promise<void>
@@ -19,6 +21,7 @@ interface CreateProcurementFormProps {
 export function CreateProcurementForm({ onSubmit, isPending }: CreateProcurementFormProps) {
   const router = useRouter()
   const { data: unitsData, isLoading: isLoadingUnits } = useGetAllUnits()
+  const { user } = useAuth()
 
   const form = useForm<ProcurementFormValues>({
     resolver: zodResolver(ProcurementFormValidation),
@@ -35,6 +38,39 @@ export function CreateProcurementForm({ onSubmit, isPending }: CreateProcurement
 
   // Helper untuk menangani file input
   const fileRef = form.register('letterFile')
+
+  // Hitung apakah unit user merupakan Head Office dan cari unitId yang sesuai dengan data user
+  const { isHeadOffice, lockedUnitId, lockedUnitName } = useMemo(() => {
+    const normalize = (v?: string) => (v ?? '').trim().toLowerCase()
+    const hoNames = new Set(['ho', 'head office', 'headoffice', 'kantor pusat'])
+    const userUnitRaw = typeof user?.unit === 'string' ? user.unit : undefined
+
+    const items = unitsData?.data ?? []
+
+    // Coba cocokkan user.unit ke id, name, atau code
+    const matched = items.find(
+      (u) => u.id === userUnitRaw || normalize(u.name) === normalize(userUnitRaw) || normalize(u.code) === normalize(userUnitRaw)
+    )
+
+    // Tentukan apakah HO berdasarkan nama/kode unit yang terdeteksi
+    const hoDetected = matched ? hoNames.has(normalize(matched.name)) || hoNames.has(normalize(matched.code)) : hoNames.has(normalize(userUnitRaw))
+
+    return {
+      isHeadOffice: hoDetected,
+      lockedUnitId: matched?.id ?? undefined,
+      lockedUnitName: matched?.name ?? userUnitRaw
+    }
+  }, [unitsData?.data, user?.unit])
+
+  // Prefill unitId untuk non-HO agar otomatis sesuai unit user
+  useEffect(() => {
+    if (!isHeadOffice && lockedUnitId) {
+      const current = form.getValues('unitId')
+      if (current !== lockedUnitId) {
+        form.setValue('unitId', lockedUnitId, { shouldValidate: true, shouldDirty: true })
+      }
+    }
+  }, [isHeadOffice, lockedUnitId, form])
 
   return (
     <Form {...form}>
@@ -115,10 +151,10 @@ export function CreateProcurementForm({ onSubmit, isPending }: CreateProcurement
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Unit Pengaju</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoadingUnits}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isLoadingUnits || (!isHeadOffice && !!lockedUnitId)}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Pilih unit..." />
+                          <SelectValue placeholder={!isHeadOffice && lockedUnitName ? lockedUnitName : 'Pilih unit...'} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -129,6 +165,9 @@ export function CreateProcurementForm({ onSubmit, isPending }: CreateProcurement
                         ))}
                       </SelectContent>
                     </Select>
+                    {!isHeadOffice && lockedUnitName && (
+                      <p className="text-xs text-muted-foreground mt-1">Unit otomatis sesuai akun Anda: {lockedUnitName}</p>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}

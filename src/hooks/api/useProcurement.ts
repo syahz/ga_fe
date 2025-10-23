@@ -11,7 +11,8 @@ import {
   getProcurementDetails,
   getHistoryProcurements,
   getProcurementProgress,
-  getProcurementLetterFile
+  getProcurementLetterFile,
+  getDashboardProcurements
 } from '@/services/ProcurementServices'
 
 const procurementQueryKeys = {
@@ -39,6 +40,18 @@ const customRetry = (failureCount: number, error: unknown) => {
   const apiError = error as ApiError
   if (apiError.code && ['401', '403', '404'].includes(String(apiError.code))) return false
   return failureCount < 3
+}
+
+/**
+ * Hook untuk mengambil daftar pengadaan untuk dashboard.
+ */
+export function useGetDashboardProcurements() {
+  return useQuery({
+    queryKey: ['dashboardProcurements'],
+    queryFn: () => getDashboardProcurements(),
+    staleTime: 5 * 60 * 1000,
+    retry: customRetry
+  })
 }
 
 /**

@@ -6,6 +6,7 @@ import { PageContainer } from '@/components/layout/PageContainer'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { UpdateAccountForm } from '@/features/(protected)/account/components/forms/UpdateAccountForm'
 import { UpdatePasswordForm } from '../components/forms/UpdatePasswordForm'
+import { DynamicSkeleton } from '@/components/ui/dynamic-skeleton'
 
 const AccountPage = () => {
   const { user } = useAuth()
@@ -15,7 +16,7 @@ const AccountPage = () => {
   if (!user || isLoading) {
     return (
       <PageContainer>
-        <p>Loading data...</p>
+        <DynamicSkeleton variant="dialogForm" />
       </PageContainer>
     )
   }

@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Procurement, ProcurementStatus } from '@/types/api/procurementType'
 import { ProcurementActionsCell } from './ProcurementActionsCell'
+import Link from 'next/link'
 
 // Helper untuk memberikan warna pada status
 const getStatusBadgeVariant = (status: ProcurementStatus) => {
@@ -28,28 +29,29 @@ const getStatusBadgeVariant = (status: ProcurementStatus) => {
 
 export const ProcurementsColumns: ColumnDef<Procurement>[] = [
   {
-    accessorKey: 'letterNumber',
+    accessorKey: 'unit.name',
     header: ({ column }) => (
       <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
         Nomor Surat
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
-    )
+    ),
+    meta: { className: 'sticky left-0 bg-card z-0 min-w-[150px]' }
+  },
+  {
+    accessorKey: 'letterNumber',
+    header: 'Nomor Surat',
+    cell: ({ row }) => <span className="truncate">{row.getValue('letterNumber')}</span>
   },
   {
     accessorKey: 'letterAbout',
     header: 'Perihal',
-    cell: ({ row }) => <div className="max-w-[300px] truncate">{row.getValue('letterAbout')}</div>
+    cell: ({ row }) => <span className="max-w-[300px] truncate">{row.getValue('letterAbout')}</span>
   },
   {
     accessorKey: 'nominal',
-    header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-        Nominal
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => <div className="text-right font-medium">{formatCurrency(Number(row.getValue('nominal')))}</div>
+    header: 'nominal',
+    cell: ({ row }) => <span className="font-medium">{formatCurrency(Number(row.getValue('nominal')))}</span>
   },
   {
     accessorKey: 'status',
@@ -70,14 +72,23 @@ export const ProcurementsColumns: ColumnDef<Procurement>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => format(new Date(row.getValue('createdAt')), 'dd MMM yyyy')
+    cell: ({ row }) => <span className="ms-4">{format(new Date(row.getValue('createdAt')), 'dd MMM yyyy')}</span>
+  },
+  {
+    accessorKey: 'letter.progress',
+    header: 'Progress',
+    cell: ({ row }) => (
+      <Link href={`/progress/${row.original.id}`} className="text-blue-600 underline">
+        Lihat Progress
+      </Link>
+    )
   },
   {
     id: 'actions',
-    header: () => <div className="text-right">Aksi</div>,
+    header: () => <div>Aksi</div>,
     cell: ({ row }) => {
       return (
-        <div className="text-right">
+        <div>
           <ProcurementActionsCell row={row} />
         </div>
       )

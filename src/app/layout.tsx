@@ -22,11 +22,16 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: 'PENGADAAN BMU',
+  title: 'BMU Pengadaan',
   description: 'Sistem Pengadaan Barang dan Jasa PT. Brawijaya Multi Usaha',
+  icons: {
+    icon: '/img/favicon.svg',
+    shortcut: '/img/favicon.svg',
+    apple: '/img/favicon.svg'
+  },
   robots: {
     index: false,
-    follow: true
+    follow: false
   }
 }
 

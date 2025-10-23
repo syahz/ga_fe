@@ -17,7 +17,8 @@ export const HistoryProcurementColumns: ColumnDef<ProcurementHistoryLog>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => <span className="font-medium">{row.original.letter.letterNumber}</span>
+    cell: ({ row }) => <span className="font-medium">{row.original.letter.letterNumber}</span>,
+    meta: { className: 'lg:sticky lg:left-0 lg:bg-card lg:z-0 lg:min-w-[100px]' }
   },
   {
     accessorKey: 'unit.name',
@@ -26,7 +27,8 @@ export const HistoryProcurementColumns: ColumnDef<ProcurementHistoryLog>[] = [
       <Badge variant={'outline'} className="font-medium">
         {row.original.letter.unit.name}
       </Badge>
-    )
+    ),
+    meta: { exportValue: (row) => row.letter.unit.name }
   },
   {
     accessorKey: 'letter.letterAbout',
@@ -45,7 +47,8 @@ export const HistoryProcurementColumns: ColumnDef<ProcurementHistoryLog>[] = [
       <Badge variant={'secondary'} className="font-medium">
         {row.original.action}
       </Badge>
-    )
+    ),
+    meta: { exportValue: (row) => row.action }
   },
   {
     accessorKey: 'timestamp',

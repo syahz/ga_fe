@@ -62,7 +62,7 @@ export default function History() {
   return (
     <PageContainer title="Role User">
       <div className="flex w-full gap-4 py-4 items-center justify-between">
-        <h2 className="text-xl font-semibold">Kotak Masuk Pengadaan</h2>
+        <h2 className="text-xl font-semibold">History Pengadaan</h2>
         <Link href={'/admin/procurements/create'}>
           <Button size="sm" variant="default" className="flex items-center gap-2">
             <PlusCircle size={16} />

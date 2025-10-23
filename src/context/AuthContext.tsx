@@ -1,5 +1,6 @@
 'use client'
 
+import { DynamicSkeleton } from '@/components/ui/dynamic-skeleton'
 import axiosInstance, { setAccessToken } from '../lib/axios'
 import { useRouter } from 'next/navigation'
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
@@ -20,6 +21,7 @@ interface User {
   name: string
   email: string
   role: Role
+  unit: string
 }
 interface AuthContextType {
   user: User | null
@@ -44,7 +46,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           id: data.user.id,
           name: data.user.name,
           email: data.user.email,
-          role: data.user.role
+          role: data.user.role,
+          unit: data.user.unit
         })
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
@@ -81,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = { user, login, logout, isLoading }
 
-  return <AuthContext.Provider value={value}>{isLoading ? <p>Loading...</p> : children}</AuthContext.Provider>
+  return <AuthContext.Provider value={value}>{isLoading ? <DynamicSkeleton variant="fullPageLoader" /> : children}</AuthContext.Provider>
 }
 
 export function useAuth() {

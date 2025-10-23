@@ -33,7 +33,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'form'>)
       setAccessToken(data.accessToken)
 
       toast.success('Login berhasil!')
-      router.push('/admin/procurements')
+      router.push('/admin')
     } catch (err) {
       console.error(err)
       toast.error('Login gagal, silakan coba lagi.' + (err instanceof Error ? ` (${err.message})` : ''))

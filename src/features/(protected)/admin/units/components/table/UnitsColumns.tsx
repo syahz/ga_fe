@@ -17,7 +17,7 @@ export const UnitsColumns: ColumnDef<Unit>[] = [
       </Button>
     ),
     cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
-    meta: { className: 'sticky left-0 bg-white z-10 min-w-[250px]' } // Sticky column
+    meta: { className: 'sticky left-0 bg-card z-10 min-w-[250px]' } // Sticky column
   },
   {
     accessorKey: 'code',
@@ -31,6 +31,6 @@ export const UnitsColumns: ColumnDef<Unit>[] = [
       const { id, name } = row.original
       return <UnitActionsCell unitId={id} unitName={name} />
     },
-    meta: { className: 'sticky right-0 bg-white z-10 w-[120px]' } // Sticky column
+    meta: { className: 'sticky right-0 bg-card z-10 w-[120px]' } // Sticky column
   }
 ]

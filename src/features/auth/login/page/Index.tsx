@@ -25,10 +25,10 @@ export default function LoginPage() {
         </div>
         <div className="bg-muted relative hidden lg:block">
           <Image
-            width={100}
-            height={100}
-            src="/img/LoginImage2.svg"
-            alt="Image"
+            width={1000}
+            height={1000}
+            src="/img/LoginImage2.jpg"
+            alt="Brawijaya Multi Usaha"
             className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.7]"
           />
         </div>

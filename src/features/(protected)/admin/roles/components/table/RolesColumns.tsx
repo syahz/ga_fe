@@ -16,7 +16,7 @@ export const RolesColumns: ColumnDef<Role>[] = [
       </Button>
     ),
     cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
-    meta: { className: 'sticky left-0 bg-white z-10 min-w-[250px]' } // Sticky column
+    meta: { className: 'sticky left-0 bg-card z-10 min-w-[250px]' } // Sticky column
   },
   {
     id: 'actions',
@@ -25,6 +25,6 @@ export const RolesColumns: ColumnDef<Role>[] = [
       const { id, name } = row.original
       return <RolesActionsCell rolesId={id} rolesName={name} />
     },
-    meta: { className: 'sticky right-0 bg-white z-10 w-[120px]' } // Sticky column
+    meta: { className: 'sticky right-0 bg-card z-10 w-[120px]' } // Sticky column
   }
 ]

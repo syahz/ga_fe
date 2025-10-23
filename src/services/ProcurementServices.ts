@@ -20,7 +20,19 @@ const normalizeError = (error: unknown, defaultMsg: string, defaultCode: string)
 }
 
 /**
- * Mengambil daftar pengadaan (surat masuk) untuk dashboard.
+ * Mengambil daftar pengadaan untuk dashboard.
+ */
+export const getDashboardProcurements = async (): Promise<Procurement[]> => {
+  try {
+    const response = await axiosInstance.get<{ data: Procurement[] }>('/admin/procurements/dashboard')
+    return response.data.data
+  } catch (error) {
+    throw normalizeError(error, 'Gagal mengambil data pengadaan untuk dashboard', 'GET_DASHBOARD_PROCUREMENTS_ERROR')
+  }
+}
+
+/**
+ * Mengambil daftar pengadaan untuk surat masuk user.
  */
 export const getProcurements = async (params: ProcurementsParams): Promise<PaginatedResponse<Procurement>> => {
   try {
@@ -77,7 +89,8 @@ export const updateProcurement = async (letterId: string, data: UpdateProcuremen
     formData.append('incomingLetterDate', data.incomingLetterDate)
     formData.append('unitId', data.unitId)
     if (data.letterFile) {
-      formData.append('letter_file', data.letterFile)
+      // Gunakan field name yang disesuaikan dengan validasi backend
+      formData.append('letterFile', data.letterFile)
     }
 
     const response = await axiosInstance.put(`/admin/procurements/${letterId}`, formData, {
@@ -117,20 +130,27 @@ export const createProcurement = async (data: CreateProcurementRequest): Promise
     formData.append('incomingLetterDate', data.incomingLetterDate)
     formData.append('unitId', data.unitId)
     if (data.letterFile) {
-      formData.append('letter_file', data.letterFile)
+      formData.append('letterFile', data.letterFile)
     }
+
+    console.log('Creating procurement with data:', data)
 
     const response = await axiosInstance.post('/admin/procurements', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     })
+    console.log(response)
     return response.data.data
   } catch (error) {
+    console.log(error)
     throw normalizeError(error, 'Gagal membuat pengadaan baru', 'CREATE_PROCUREMENT_ERROR')
   }
 }
 
+/**
+ * Mengirim keputusan pengadaan.
+ */
 export const processDecision = async (letterId: string, data: ProcessDecisionRequest): Promise<Procurement> => {
   try {
     const response = await axiosInstance.post(`/admin/procurements/decision/${letterId}`, data)
@@ -140,6 +160,10 @@ export const processDecision = async (letterId: string, data: ProcessDecisionReq
   }
 }
 
+/**
+ * Mengunduh file surat pengadaan berdasarkan nama file.
+ * @return Blob dari file yang diunduh.
+ */
 export const getProcurementLetterFile = async (fileName: string): Promise<Blob> => {
   try {
     const response = await axiosInstance.get(`/letters/${fileName}`, {

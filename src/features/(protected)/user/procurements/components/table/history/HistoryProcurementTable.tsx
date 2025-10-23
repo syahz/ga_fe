@@ -15,6 +15,7 @@ interface HistoryProcurementTableProps {
 export function HistoryProcurementTable({ table, isLoading, isFetching, error }: HistoryProcurementTableProps) {
   return (
     <DataTable
+      exportOptions={{ enabled: true, fileName: 'history-procurements' }}
       table={table}
       isLoading={isLoading}
       isFetching={isFetching}

@@ -1,22 +1,15 @@
-import { AdminSidebar } from "@/components/layout/AdminSidebar";
+import { AdminSidebar } from '@/components/layout/AdminSidebar'
 
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import React, { ReactNode } from "react";
-import { Separator } from "@/components/ui/separator";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import React, { ReactNode } from 'react'
+import { Separator } from '@/components/ui/separator'
 
 interface PageContainerProps {
-  children?: ReactNode;
-  title?: string;
+  children?: ReactNode
+  title?: string
 }
 
-export const PageContainer: React.FC<PageContainerProps> = ({
-  children,
-  title,
-}) => {
+export const PageContainer: React.FC<PageContainerProps> = ({ children, title }) => {
   return (
     <SidebarProvider className="font-poppins">
       <AdminSidebar />
@@ -28,10 +21,8 @@ export const PageContainer: React.FC<PageContainerProps> = ({
             <span className="font-bold">{title}</span>
           </div>
         </header>
-        <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/30 md:min-h-min m-4 p-4">
-          {children}
-        </div>
+        <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/30 md:min-h-min m-4 p-4 overflow-x-hidden">{children}</div>
       </SidebarInset>
     </SidebarProvider>
-  );
-};
+  )
+}

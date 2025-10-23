@@ -15,6 +15,7 @@ interface ParticipantsTableProps {
 export function ParticipantsTable({ table, isLoading, isFetching, error }: ParticipantsTableProps) {
   return (
     <DataTable
+      exportOptions={{ enabled: true, fileName: 'Participant-data' }}
       table={table}
       isLoading={isLoading}
       isFetching={isFetching}

@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { useSearchFilters } from '@/hooks/useSearchFilter'
-import { orderSearchConfig } from '@/config/search-config'
+import { ProcurementSearchConfig } from '@/config/search-config'
 import { ProcurementsTable } from '../components/table/ProcurementTable'
 import { PlusCircle } from 'lucide-react'
 import { ProcurementsColumns } from '../components/table/ProcurementColumns'
@@ -13,8 +13,13 @@ import { DataTablePagination } from '@/components/table/DataTablePagination'
 import { useReactTable, getCoreRowModel, PaginationState, SortingState } from '@tanstack/react-table'
 import Link from 'next/link'
 import { useGetProcurements } from '@/hooks/api/useProcurement'
+import { useAuth } from '@/context/AuthContext'
+import { useGetRules } from '@/hooks/api/useRule'
 
 export default function UsersPage() {
+  const { user } = useAuth()
+  const { data: rulesData, isLoading: isLoadingRules } = useGetRules()
+
   const [sorting, setSorting] = useState<SortingState>([])
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -32,6 +37,13 @@ export default function UsersPage() {
   }
 
   const { data, isLoading, error, isFetching } = useGetProcurements(queryParams)
+
+  const canCreateProcurement = useMemo(() => {
+    if (!user || !rulesData?.items) return false
+
+    // Iterasi setiap aturan untuk mengecek apakah role user saat ini adalah 'CREATE'
+    return rulesData.items.some((rule) => rule.steps.some((step) => step.stepType === 'CREATE' && step.role.name === user.role))
+  }, [user, rulesData])
 
   const defaultData = useMemo(() => [], [])
   const columns = useMemo(() => ProcurementsColumns, [])
@@ -63,12 +75,14 @@ export default function UsersPage() {
     <PageContainer title="Role User">
       <div className="flex w-full gap-4 py-4 items-center justify-between">
         <h2 className="text-xl font-semibold">Kotak Masuk Pengadaan</h2>
-        <Link href={'/admin/procurements/create'}>
-          <Button size="sm" variant="default" className="flex items-center gap-2">
-            <PlusCircle size={16} />
-            <span>Tambah Pengadaan</span>
-          </Button>
-        </Link>
+        {canCreateProcurement && (
+          <Link href={'/user/procurements/create'}>
+            <Button size="sm" variant="default" className="flex items-center gap-2">
+              <PlusCircle size={16} />
+              <span>Tambah Pengadaan</span>
+            </Button>
+          </Link>
+        )}
       </div>
 
       <div className="space-y-4">
@@ -79,11 +93,11 @@ export default function UsersPage() {
           filters={filters}
           onFilterChange={handleFilterChange}
           onClearFilters={handleClearFilters}
-          config={orderSearchConfig}
+          config={ProcurementSearchConfig}
         />
 
         {/* Panggil ProcurementsTable dengan props yang sudah di-upgrade */}
-        <ProcurementsTable table={table} isLoading={isLoading} isFetching={isFetching} error={error as Error | null | undefined} />
+        <ProcurementsTable table={table} isLoading={isLoading || isLoadingRules} isFetching={isFetching} error={error as Error | null | undefined} />
 
         {/* Paginasi sekarang dikontrol oleh table instance */}
         {data?.pagination && (
