@@ -22,7 +22,7 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: 'BMU Pengadaan',
+  title: 'E-Proc BMU',
   description: 'Sistem Pengadaan Barang dan Jasa PT. Brawijaya Multi Usaha',
   icons: {
     icon: '/img/favicon.svg',
