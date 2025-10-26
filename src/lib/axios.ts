@@ -36,40 +36,51 @@ axiosInstance.interceptors.response.use(
   (res) => res,
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig
+    const url = originalRequest?.url || ''
 
-    if (error.response?.status === 401 && !originalRequest?._retry) {
-      if (isRefreshing) {
-        return new Promise((resolve) => {
-          addRefreshSubscriber((token) => {
-            if (originalRequest?.headers) {
-              originalRequest.headers.Authorization = `Bearer ${token}`
-            }
-            resolve(axiosInstance(originalRequest!))
-          })
-        })
+    if (error.response?.status === 401) {
+      // Don't attempt refresh for auth endpoints themselves
+      const isAuthLogin = url.includes('/auth/login')
+      const isAuthRefresh = url.includes('/auth/refresh')
+      const isAuthLogout = url.includes('/auth/logout')
+      if (isAuthLogin || isAuthRefresh || isAuthLogout) {
+        return Promise.reject(error)
       }
 
-      originalRequest._retry = true
-      isRefreshing = true
-
-      try {
-        const { data } = await axiosInstance.post('/auth/refresh')
-        accessToken = data.accessToken
-
-        isRefreshing = false
-        if (accessToken) {
-          onRefreshed(accessToken)
+      if (!originalRequest?._retry) {
+        if (isRefreshing) {
+          return new Promise((resolve) => {
+            addRefreshSubscriber((token) => {
+              if (originalRequest?.headers) {
+                originalRequest.headers.Authorization = `Bearer ${token}`
+              }
+              resolve(axiosInstance(originalRequest!))
+            })
+          })
         }
 
-        if (originalRequest?.headers && accessToken) {
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`
+        originalRequest._retry = true
+        isRefreshing = true
+
+        try {
+          const { data } = await axiosInstance.post('/auth/refresh')
+          accessToken = data.accessToken
+
+          isRefreshing = false
+          if (accessToken) {
+            onRefreshed(accessToken)
+          }
+
+          if (originalRequest?.headers && accessToken) {
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`
+          }
+          return axiosInstance(originalRequest!)
+        } catch (err) {
+          isRefreshing = false
+          accessToken = undefined
+          window.location.href = '/login'
+          return Promise.reject(err)
         }
-        return axiosInstance(originalRequest!)
-      } catch (err) {
-        isRefreshing = false
-        accessToken = undefined
-        window.location.href = '/login'
-        return Promise.reject(err)
       }
     }
 
